@@ -1,5 +1,12 @@
-export default function Home(){
+import Navbar from '@/components/shared/navbar'
+import React from 'react'
+
+function page() {
   return (
-    <h1>hello world</h1>
+    
+
+      <Navbar/>
   )
 }
+
+export default page
