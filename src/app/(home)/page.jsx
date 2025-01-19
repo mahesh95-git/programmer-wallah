@@ -396,7 +396,7 @@ export function StudentReviews() {
       title: "Cybersecurity Essentials",
     },
   ];
-  
+
   return (
     <div>
       <div className='text-center text-4xl font-bold  bg-clip-text text-transparent bg-neutral-700' >Students Who Chased Dreams and Landed Careers</div>

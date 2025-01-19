@@ -42,7 +42,7 @@ export async function POST(req) {
       })
     }
 
-
+console.log(evt.data)
     const { first_name, email_addresses, image_url, last_name, profile_image_url, gender } = evt.data
     const eventType = evt.type
 
@@ -50,7 +50,7 @@ export async function POST(req) {
       const user = await User.findOne({ email: evt.data.email })
       if (!user) {
         const newUser = new User({
-          email: email_addresses[0].email_addresses,
+          email: email_addresses[0]. email_address,
           firstName: first_name,
           lastName: last_name || '',
           profileImage: profile_image_url || image_url || '',
@@ -62,7 +62,7 @@ export async function POST(req) {
     } else if (eventType === 'user.updated') {
       const user = await User.findOne({ email: evt.data.email })
       if (user) {
-        user.email = email_addresses[0].email_addresses,
+        user.email = email_addresses[0].email_address,
           user.firstName = first_name,
           user.lastName = last_name || '',
           user.profileImage = profile_image_url || image_url || '',
