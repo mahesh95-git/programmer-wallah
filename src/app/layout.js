@@ -4,6 +4,8 @@ import {
   ClerkProvider,
 
 } from '@clerk/nextjs'
+import Navbar from "@/components/shared/navbar";
+import Footer from "@/components/shared/Footer";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -24,11 +26,12 @@ export default function RootLayout({ children }) {
 
     <ClerkProvider>
       <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased w-full h-full flex justify-center`}>
-         
-          <div className="w-[70%] flex flex-col justify-center items-center relative h-full">
-          {children}
-          </div>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased w-full h-full flex justify-between items-center flex-col`}>
+          <Navbar />
+          <main className="flex  flex-col gap-4 p-4 w-[70%] justify-center items-center min-h-screen">
+            {children}
+          </main>
+          <Footer/>
         </body>
       </html>
     </ClerkProvider>
