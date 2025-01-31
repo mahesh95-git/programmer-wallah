@@ -42,8 +42,7 @@ export async function POST(req) {
       })
     }
 
-console.log(evt.data)
-    const { first_name, email_addresses, image_url, last_name, profile_image_url, gender } = evt.data
+    const { first_name, email_addresses, image_url, last_name, profile_image_url, gender ,id} = evt.data
     const eventType = evt.type
 
     if (eventType === 'user.created') {
@@ -54,7 +53,8 @@ console.log(evt.data)
           firstName: first_name,
           lastName: last_name || '',
           profileImage: profile_image_url || image_url || '',
-          gender: gender
+          gender: gender,
+          userId:id,
 
         });
         await newUser.save();
@@ -66,7 +66,8 @@ console.log(evt.data)
           user.firstName = first_name,
           user.lastName = last_name || '',
           user.profileImage = profile_image_url || image_url || '',
-          user.gender = gender
+          user.gender = gender,
+          user.userId=id,
         await user.save();
         console.log('User updated:', user);
       }

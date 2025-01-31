@@ -1,10 +1,11 @@
 import { BackgroundBeams } from '@/components/ui/background-beams'
 import React from 'react'
 import { Roboto, Lato } from 'next/font/google'
-import { BookOpen, Clock, Eye, PlayCircle, TrendingUp, User2, UserPlus, Users, Heart, Link, HandHeart } from 'lucide-react'
+import { BookOpen, Clock, Eye, PlayCircle, TrendingUp, User2, UserPlus, Users, Heart,HandHeart } from 'lucide-react'
 import { HoverEffect } from '@/components/ui/card-hover-effect'
 import { InfiniteMovingCards } from '@/components/ui/infinite-moving-cards'
 import Image from 'next/image'
+import Link from 'next/link'
 const roboto = Roboto({
   variable: '--font-roboto',
   subsets: ['latin'],
@@ -14,7 +15,7 @@ const roboto = Roboto({
 
 function Page() {
   return (
-    <>
+    <  >
       <div className="w-full text-center flex flex-col justify-between items-center  h-screen ">
         <div className='flex flex-1 flex-col justify-center items-center gap-4 p-4' style={
           {
@@ -41,12 +42,16 @@ function Page() {
             reality!
           </p>
           <div className="flex gap-4 z-10">
-            <button className="bg-gradient-to-r bg-purple-500  text-white rounded-full px-6 py-3 mt-3">
+          <Link href={"/courses"}>
+           <button className="bg-gradient-to-r bg-purple-500  text-white rounded-full px-6 py-3 mt-3">
               Explore
             </button>
+          </Link>
+          <Link href={"/sign-in"}>
             <button className="bg-gradient-to-r from-orange-500 to-violet-500  hover:bg-orange-500 text-white rounded-full px-6 py-3 mt-3">
               Join Us
             </button>
+          </Link>
           </div>
         </div>
 
@@ -166,23 +171,21 @@ function CourseEnrollment() {
   return (
     <div className="w-full bg-gradient-to-b from-transparent to-indigo-600 flex items-center justify-center p-10 flex-col  ">
       <div className="text-center mb-8">
-        <h1 className="text-2xl  font-bold mb-2 text-neutral-900" style={{
-          fontFamily: roboto.variable
-        }}>
+        <h1 className="text-2xl  font-bold mb-2  bg-clip-text text-transparent bg-gradient-to-r from-purple-500  to-violet-400">
           INDIA'S MOST LOVED CODING COMMUNITY <Heart className="inline-block w-6 h-6 text-red-500 ml-2 animate-pulse" />
         </h1>
       </div>
       <div className="flex justify-center gap-10 items-center">
 
-        <div className='flex justify-center flex-col items-center gap-1 text-neutral-900'>
+        <div className='flex justify-center flex-col items-center gap-1 text-white'>
 
           <div className='flex justify-center items-center gap-3'>
             <Users className="w-9 h-9 " />
             <div className="text-2xl font-bold text-blod mb-2">6,000,000+</div>
           </div>
-          <div className=" uppercase tracking-wide text-neutral-900 font-bold">Happy Learners</div>
+          <div className=" uppercase tracking-wide text-white font-bold">Happy Learners</div>
         </div>
-        <div className='flex justify-center flex-col items-center gap-1 text-neutral-900'>
+        <div className='flex justify-center flex-col items-center gap-1 text-white'>
 
           <div className='flex justify-center items-center gap-3 '>
             <HandHeart className="w-9 h-9 " />
@@ -190,10 +193,10 @@ function CourseEnrollment() {
           </div>
           <div className=" uppercase tracking-wide  font-bold">monthly views</div>
         </div>
-        <div className='flex justify-center flex-col items-center gap-1  text-neutral-900'>
+        <div className='flex justify-center flex-col items-center gap-1  text-white'>
 
           <div className='flex justify-center items-center gap-3'>
-            <Link className="w-9 h-9 " />
+            {/* <Link className="w-9 h-9 " /> */}
             <div className="text-2xl font-bold text-blod mb-2  ">1,000,000+</div>
           </div>
           <div className=" uppercase tracking-wide  font-bold">new monthly subscribers
@@ -403,13 +406,13 @@ export function StudentReviews() {
       <InfiniteMovingCards
         items={testimonials}
         direction="right"
-        speed="slow"
+        speed="normall"
         className={"mt-12"}
       />
       <InfiniteMovingCards
         items={testimonials2}
         direction="left"
-        speed="slow"
+        speed="normall"
         className={"mt-3"}
       />
     </div>

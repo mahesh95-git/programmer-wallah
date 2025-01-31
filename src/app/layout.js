@@ -1,19 +1,13 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Rubik } from "next/font/google";
+import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 import {
   ClerkProvider,
 
 } from '@clerk/nextjs'
 import Footer from "@/components/shared/Footer";
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const font = Rubik({ subsets: ['latin'] });
 
 export const metadata = {
   title: "Create Next App",
@@ -25,11 +19,12 @@ export default function RootLayout({ children }) {
 
     <ClerkProvider>
       <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased w-full h-full flex justify-between items-center flex-col`}>
-          <main className="flex  flex-col gap-4 p-4 w-[70%] justify-center items-center min-h-screen">
+        <body className={`${font.className}`}>
+          <main >
             {children}
           </main>
           <Footer />
+          <Toaster />
         </body>
       </html>
     </ClerkProvider>
