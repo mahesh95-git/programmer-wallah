@@ -2,7 +2,6 @@ import { v2 as cloudinary } from "cloudinary";
 
 export async function uploadFileToCloudinary(data) {
     try {
-        console.log(data)
         cloudinary.config({
             cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
             api_key: process.env.CLOUDINARY_API_KEY,
@@ -50,10 +49,11 @@ export async function uploadFileToCloudinary(data) {
                 }
                 else if (file.type === "video/mp4") {
                     return new Promise((resolve, reject) => {
-                        const uploadStream = cloudinary.uploader.upload_large_stream(
+                        const uploadStream = cloudinary.uploader.upload_stream(
                             {
                                 resource_type: "video",
                                 folder: "pw/videos",
+                                chunk_size: 6000000,  // 6MB chunks for large video uploads
                                 eager: [
                                     { quality: "auto" },
                                 ],

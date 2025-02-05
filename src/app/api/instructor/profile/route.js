@@ -12,7 +12,7 @@ export async function GET(req) {
         console.log(userId)
         const user = await User.findOne({
             userId: userId
-        }).select("firstName lastName email expertise bio contactNumber profile qualifications role isApprovedInstructor");
+        }).select("firstName lastName email expertise bio contactNumber profile qualifications role isApprovedInstructor qualificationCertificate");
 
         console.log(user)
         if (!user) {
@@ -66,7 +66,7 @@ export async function PUT(req) {
 
         // Find and validate user
         let user = await User.findOne({ userId })
-            .select("firstName lastName email expertise bio contactNumber profile qualifications role isApprovedInstructor");
+            .select("firstName lastName email expertise bio contactNumber profile qualifications role isApprovedInstructor qualificationCertificate");
 
         if (!user) {
             return NextResponse.json({ message: "User not found", success: false }, { status: 404 });
@@ -85,19 +85,20 @@ export async function PUT(req) {
             fileUpload.push({ file: profile, subType: "profile" });
         }
         if (qualificationcCertificate&&qualificationcCertificate != 'null') {
-            fileUpload.push({ file: qualificationcCertificate, subType: "qualificationcCertificate" })
+            fileUpload.push({ file: qualificationcCertificate, subType: "qualificationCertificate" })
         }
         
         let upload = [];
         if (fileUpload.length > 0) {
             upload = await uploadFileToCloudinary(fileUpload);
         }
+        console.log(upload)
         upload.forEach((value) => {
             if (value.subType == "profile") {
                 user.profile = value.secure_url;
             }
-            if (value.subType == "qualificationcCertificate") {
-                user.qualificationcCertificate = value.secure_url;
+            if (value.subType == "qualificationCertificate") {
+                user.qualificationCertificate = value.secure_url;
             }
         });
         Object.assign(user, updateData);

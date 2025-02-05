@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 const instructorRoutes = createRouteMatcher([
   "/instructor/home(.*)",
-  "/api/instructor(.*)",
+  "/api/instructor/action(.*)",
 ]);
 
 const adminRoutes = createRouteMatcher([
@@ -13,7 +13,8 @@ const adminRoutes = createRouteMatcher([
 const studentRoutes = createRouteMatcher([
   
   "/profile(.*)",
-  "/my-courses(.*)"
+  "/my-courses(.*)",
+  "/api/instructor/new"
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
@@ -27,8 +28,10 @@ export default clerkMiddleware(async (auth, req) => {
   }
   const user = await client.users.getUser(userId);
   const role = user.privateMetadata.role || "student";
+const isApprovedInstructor=user.privateMetadata.isApprovedInstructor||"pending"
+
   if (instructorRoutes(req)) {
-    if (role !== "instructor" && role !== "admin") {
+    if (role !== "instructor" && role !== "admin"&&isApprovedInstructor!="approved") {
       return NextResponse.redirect(new URL("/", req.url));
     }
   }

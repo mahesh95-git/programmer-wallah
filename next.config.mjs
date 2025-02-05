@@ -2,6 +2,11 @@
 const nextConfig = {
     images: {
         domains: ['images.unsplash.com'],
+    },
+    experimental:{
+        serverActions:{
+            bodySizeLimit:"5mb"
+        }
     }
 };
 

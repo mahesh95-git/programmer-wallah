@@ -46,11 +46,12 @@ export default function InstructorForm() {
     } else if (error) {
       toast({
         variant: "destructive",
-        title: data.message
+        title: data?.message||"internal server error"
       })
     }
   }, [data, error, loading])
   function onSubmit(data) {
+    console.log(data)
     if (!qualificationcCertificate) {
       toast({
         type: "error",
@@ -68,8 +69,8 @@ export default function InstructorForm() {
         form.append("expertise", data.expertise)
         form.append("qualificationcCertificate", qualificationcCertificate)
 
-        await fetchData({
-          url: "/api/instructor",
+       await fetchData({
+          url: "api/instructor/new",
           method: "POST",
           body: form,
 
@@ -77,7 +78,7 @@ export default function InstructorForm() {
 
 
       } catch (error) {
-        console.log(error)
+        console.error(error.message)
       }
 
     }

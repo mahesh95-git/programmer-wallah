@@ -9,5 +9,8 @@ const courseSchema = z.object({
     category: z.string().min(1, "Category is required"),
     level: z.enum(["beginner", "intermediate", "advanced"]),
     chapters: z.array(chapterSchema).min(1, "At least one chapter is required"),
+    status:z.enum(["draft","published"]),
+    language:z.string().min(1,"langauge in required"),
+    whatYouLearn: z.array(z.string().min(20,"object must be at least 10 character").max(30,"object must be at most 30")).min(2, "Add at least one learning objective"),
   });
 export default courseSchema;

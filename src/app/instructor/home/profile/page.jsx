@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { SquarePen } from "lucide-react";
+import { Eye, SquarePen } from "lucide-react";
 import useFetch from "@/hooks/useFetch";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -61,7 +61,7 @@ export default function InstructorProfile() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error
+        description: error,
       });
     }
 
@@ -73,12 +73,12 @@ export default function InstructorProfile() {
         "expertise",
         "bio",
         "contactNumber",
-        "qualifications"
+        "qualifications",
       ];
       setProfilePicture(data.user.profile);
-      setCertificatePreview(data.)
-      console.log(data);
-      fields.forEach(field => {
+      setCertificatePreview(data.user?.qualificationCertificate);
+
+      fields.forEach((field) => {
         form.setValue(field, data.user[field] || "");
       });
     }
@@ -88,7 +88,6 @@ export default function InstructorProfile() {
     try {
       const form = new FormData();
       if (profileFile) {
-
         form.append("profilePicture", profileFile);
       }
       if (certificateFile) {
@@ -97,31 +96,33 @@ export default function InstructorProfile() {
       form.append("firstName", formData.firstName);
       form.append("lastName", formData.lastName);
       form.append("qualifications", formData.qualifications);
-      form.append("bio", formData.bio)
-      form.append("contactNumber", formData.contactNumber)
-      form.append("expertise", formData.expertise)
+      form.append("bio", formData.bio);
+      form.append("contactNumber", formData.contactNumber);
+      form.append("expertise", formData.expertise);
       form.append("email", formData.email);
 
-     await fetchData({
+      await fetchData({
         url: "/api/instructor/profile",
         method: "PUT",
-        body: form
+        body: form,
       });
-    }catch(error){
+      toast({
+        title: "profile update successfylly",
+      });
+      setIsEditing(false);
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message
+        description: error.message,
       });
     }
-      
   }
 
   return (
-    <div className="flex flex-col items-center p-4">
+    <div className="flex flex-col items-center p-2">
       <Button
         onClick={() => setIsEditing(!isEditing)}
-
         className="self-end mb-4 bg-[#373636] text-white hover:bg-[#252525] hover:text-white"
       >
         {isEditing ? "Cancel" : "Edit Profile"}
@@ -132,7 +133,9 @@ export default function InstructorProfile() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-full max-w-2xl space-y-6 p-8 rounded-lg bg-white shadow-sm"
         >
-          <h1 className="text-center text-2xl font-semibold mb-6">Instructor Profile</h1>
+          <h1 className="text-center text-2xl font-semibold mb-6">
+            Instructor Profile
+          </h1>
 
           <div className="flex justify-center mb-8 relative">
             <div className="relative w-32 h-32">
@@ -145,7 +148,8 @@ export default function InstructorProfile() {
               ) : (
                 <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center">
                   <span className="text-2xl text-gray-500">
-                    {form.watch("firstName")?.[0]}{form.watch("lastName")?.[0]}
+                    {form.watch("firstName")?.[0]}
+                    {form.watch("lastName")?.[0]}
                   </span>
                 </div>
               )}
@@ -179,11 +183,7 @@ export default function InstructorProfile() {
                 <FormItem>
                   <FormLabel>First Name</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      disabled={!isEditing}
-                      className="h-10"
-                    />
+                    <Input {...field} disabled={!isEditing} className="h-10" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -197,11 +197,7 @@ export default function InstructorProfile() {
                 <FormItem>
                   <FormLabel>Last Name</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      disabled={!isEditing}
-                      className="h-10"
-                    />
+                    <Input {...field} disabled={!isEditing} className="h-10" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -235,11 +231,7 @@ export default function InstructorProfile() {
               <FormItem>
                 <FormLabel>Expertise</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    disabled={!isEditing}
-                    className="h-10"
-                  />
+                  <Input {...field} disabled={!isEditing} className="h-10" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -272,11 +264,7 @@ export default function InstructorProfile() {
                 <FormItem>
                   <FormLabel>Contact Number</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      disabled={!isEditing}
-                      className="h-10"
-                    />
+                    <Input {...field} disabled={!isEditing} className="h-10" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -290,72 +278,54 @@ export default function InstructorProfile() {
                 <FormItem>
                   <FormLabel>Qualifications</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      disabled={!isEditing}
-                      className="h-10"
-                    />
+                    <Input {...field} disabled={!isEditing} className="h-10" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          <div className="flex  items-center justify-center gap-2">
-            <Label> Certificate</Label>
-          <Input type="file" onChange={
-            (e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-               setCertificateFile(file);
-              }
-            }
-            
-          }
-          value={certificateFile}
-          />
+            {isEditing && (
+              <div className="flex  items-center justify-center gap-2">
+                <Label>upate Certificate</Label>
+                <Input
+                  type="file"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setCertificateFile(file);
+                    }
+                  }}
+                />
+              </div>
+            )}
 
-
-
-
-<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* <div className="flex items-center justify-center gap-2">
-            <Label>Certificate</Label>
-              <Input 
-                type="file" 
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setCertificateFile(file);
-                    setCertificatePreview(URL.createObjectURL(file));
-                  }
-                }}
-              />
-            </div> */}
+            <div className="grid grid-cols-2 md:grid-cols-1 gap-6 w-full">
               {certificatePreview && (
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="icon" className="ml-2">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl">
-                    <DialogHeader>
-                      <DialogTitle>Qualification Certificate</DialogTitle>
-                    </DialogHeader>
-                    <div className="flex justify-center">
-                      <img 
-                        src={certificatePreview} 
-                        alt="Qualification Certificate" 
-                        className="max-w-full max-h-[600px] object-contain"
-                      />
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <div className="flex w-full gap-4 items-center text-nowrap">
+                  <div className="">view qualification Certificate</div>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="icon" className="ml-2">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl">
+                      <DialogHeader>
+                        <DialogTitle>Qualification Certificate</DialogTitle>
+                      </DialogHeader>
+                      <div className="flex justify-center">
+                        <img
+                          src={certificatePreview}
+                          alt="Qualification Certificate"
+                          className="max-w-full max-h-[600px] object-contain"
+                        />
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               )}
             </div>
           </div>
-          </div>
-
 
           {isEditing && (
             <Button

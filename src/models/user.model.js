@@ -1,17 +1,17 @@
 import mongoose from "mongoose";
-import validator from "validator"
+import validator from "validator";
 const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
     required: true,
     trim: true,
     minLength: [2, "First name must be at least 2 characters"],
-    maxLength: [50, "First name cannot exceed 50 characters"]
+    maxLength: [50, "First name cannot exceed 50 characters"],
   },
   lastName: {
     type: String,
     trim: true,
-    maxLength: [50, "Last name cannot exceed 50 characters"]
+    maxLength: [50, "Last name cannot exceed 50 characters"],
   },
   email: {
     type: String,
@@ -19,109 +19,115 @@ const userSchema = new mongoose.Schema({
     unique: true,
     trim: true,
     lowercase: true,
-    validate: [validator.isEmail, "Please provide a valid email"]
+    validate: [validator.isEmail, "Please provide a valid email"],
   },
   role: {
     type: String,
-    enum: ['student', 'instructor', 'admin'],
-    default: 'student'
+    enum: ["student", "instructor", "admin"],
+    default: "student",
   },
   isApprovedInstructor: {
     type: String,
-    enum: ['approved', 'pending', 'rejected'],
+    enum: ["approved", "pending", "rejected"],
+    default: "pending",
   },
   profile: {
     type: String,
-    default: ''
+    default: "",
   },
   bio: {
     type: String,
-    default: ''
+    default: "",
   },
   qualifications: {
     type: String,
-    minLength: [3, "Qualifications must be specified."],
-    maxLength: [100, "Qualifications cannot exceed 50 characters"]
   },
-  qualificationsCertificate: {
+  qualificationCertificate: {
     type: String,
+    default: "",
   },
   expertise: {
     type: String,
-    trim: true
+    trim: true,
+    default: "",
   },
   isVerified: {
     type: Boolean,
-    default: false
+    default: false,
   },
   userId: {
     type: String,
-    required: true
+    required: true,
   },
-  enrolledCourses: [{
-    courseId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Course'
+  enrolledCourses: [
+    {
+      courseId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Course",
+      },
+      enrolledAt: {
+        type: Date,
+        default: Date.now,
+      },
+      progress: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100,
+      },
     },
-    enrolledAt: {
-      type: Date,
-      default: Date.now
-    },
-    progress: {
-      type: Number,
-      default: 0,
-      min: 0,
-      max: 100
-    }
-  }],
-  contactNumber:{
-type: String,
+  ],
+  contactNumber: {
+    type: String,
     trim: true,
     minLength: [10, "Contact number must be at least 10 characters"],
     maxLength: [15, "Contact number cannot exceed 15 characters"],
-    validate:[validator.isMobilePhone,"please provide valid phone number"]
+    validate: [validator.isMobilePhone, "please provide valid phone number"],
+    default: "",
   },
-  createdCourses: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Course'
-  }],
+  createdCourses: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Course",
+    },
+  ],
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   lastLogin: Date,
   updatedAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   isActive: {
     type: Boolean,
-    default: true
+    default: true,
   },
   courseCompletionCertificate: [
     {
       type: String,
-    }
-  ]
+    },
+  ],
 });
 
-userSchema.pre('save', async function (next) {
-  if (this.isModified('role') && this.role === 'student') {
+userSchema.pre("save", async function (next) {
+  if (this.isModified("role") && this.role === "student") {
     this.isApprovedInstructor = false;
   }
   next();
 });
 userSchema.methods.isInstructor = function () {
-  return this.role === 'instructor' && this.isApprovedInstructor;
+  return this.role === "instructor" && this.isApprovedInstructor;
 };
 // Static method to find active instructors
 userSchema.statics.findActiveInstructors = function () {
   return this.find({
-    role: 'instructor',
+    role: "instructor",
     isApprovedInstructor: true,
-    isActive: true
+    isActive: true,
   });
 };
 
 const User = mongoose.models.users || mongoose.model("users", userSchema);
-export default User
+export default User;

@@ -58,7 +58,7 @@ export async function POST(req) {
         user.profile = profileImage;
         user.isApprovedInstructor = "pending";
         user.role="instructor";
-         await user.save();
+         const updatedUser= await user.save();
         return NextResponse.json({ message: "Your application has been successfully submitted. We will reply to you within 24 hours.", success: true }, { status: 200 })
     } catch (error) {
         return NextResponse.json({ message: "Failed to submit data", success: false }, { status: 500 })

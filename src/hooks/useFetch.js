@@ -29,11 +29,12 @@ export default function useFetch() {
             setLoading(false);
           
         } catch (error) {
-            console.log(error)
+            console.log(error.message)
             setError(error);
             setLoading(false);
         }
     };
+    console.log(data)
     return {
         data,
         loading,

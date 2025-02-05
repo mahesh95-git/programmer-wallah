@@ -40,7 +40,7 @@ function Layout({ children }) {
   return (
     <div className="flex w-full min-h-screen gap-2">
       {/* Sidebar Navigation */}
-      <div className="w-1/5 h-screen border-r-2 shadow-lg p-4">
+      <div className="w-1/5 h-screen border-r-2 shadow-lg p-2">
         <nav className="flex flex-col space-y-6">
           <h2 className="text-xl font-semibold mb-4">
             <span className="rounded-full p-3 shadow-lg mr-2">
