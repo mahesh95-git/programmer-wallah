@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +23,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { BookOpen, Radio, Users } from "lucide-react";
+import useFetch from '@/hooks/useFetch';
 
 // Mock data - replace with actual data from your API
 const courses = [
@@ -47,6 +48,23 @@ const courses = [
 export default function LiveSessionsPage() {
   const [selectedCourse, setSelectedCourse] = useState("");
   const [isLive, setIsLive] = useState(false);
+const {data:courseData,loading:courseLoading,error:courseError,fetchData:fetchCourse}=useFetch()
+useEffect(()=>{
+  (async()=>{
+   try {
+    fetchCourse({
+      url: `/api/instructor/action/course`,
+      method: "GET",
+    })
+    
+   } catch (error) {
+    console.log(error.message)
+   }
+  })();
+},[])
+
+
+console.log()
 
   const handleGoLive = () => {
     setIsLive(true);

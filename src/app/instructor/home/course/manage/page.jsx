@@ -1,197 +1,250 @@
-"use client";
-
-import React from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+"use client"
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Clock, Users } from "lucide-react";
-import Link from 'next/link';
+import { BookCheck, BookOpen, Clock, IndianRupee, Loader2, Users } from "lucide-react";
+import Link from "next/link";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import useFetch from "@/hooks/useFetch";
+import { Input } from "@/components/ui/input";
 
-// Mock data - replace with actual data from your API
-const courses = [
-  {
-    id: 1,
-    title: "Complete JavaScript Course 2024",
-    description: "Master modern JavaScript from the basics to advanced topics",
-    thumbnail: "https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?w=500&auto=format&fit=crop&q=60",
-    level: "intermediate",
-    enrolledCount: 234,
-    totalDuration: 1200, // in minutes
-    chaptersCount: 12,
-    price: 49.99,
-    isFree: false,
-  },
-  {
-    id: 2,
-    title: "React.js for Beginners",
-    description: "Learn React.js from scratch and build modern web applications",
-    thumbnail: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=500&auto=format&fit=crop&q=60",
-    level: "beginner",
-    enrolledCount: 456,
-    totalDuration: 960,
-    chaptersCount: 10,
-    price: 0,
-    isFree: true,
-  },
-  {
-    id: 2,
-    title: "React.js for Beginners",
-    description: "Learn React.js from scratch and build modern web applications",
-    thumbnail: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=500&auto=format&fit=crop&q=60",
-    level: "beginner",
-    enrolledCount: 456,
-    totalDuration: 960,
-    chaptersCount: 10,
-    price: 0,
-    isFree: true,
-  },
-  {
-    id: 2,
-    title: "React.js for Beginners",
-    description: "Learn React.js from scratch and build modern web applications",
-    thumbnail: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=500&auto=format&fit=crop&q=60",
-    level: "beginner",
-    enrolledCount: 456,
-    totalDuration: 960,
-    chaptersCount: 10,
-    price: 0,
-    isFree: true,
-  },
+const CourseCard = ({ course, changeStatus, loading }) => {
+  const formatDuration = (minutes) => {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return `${hours}h ${remainingMinutes}m`;
+  };
 
-  {
-    id: 2,
-    title: "React.js for Beginners",
-    description: "Learn React.js from scratch and build modern web applications",
-    thumbnail: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=500&auto=format&fit=crop&q=60",
-    level: "beginner",
-    enrolledCount: 456,
-    totalDuration: 960,
-    chaptersCount: 10,
-    price: 0,
-    isFree: true,
-  },
-  {
-    id: 2,
-    title: "React.js for Beginners",
-    description: "Learn React.js from scratch and build modern web applications",
-    thumbnail: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=500&auto=format&fit=crop&q=60",
-    level: "beginner",
-    enrolledCount: 456,
-    totalDuration: 960,
-    chaptersCount: 10,
-    price: 0,
-    isFree: true,
-  },
-  {
-    id: 2,
-    title: "React.js for Beginners",
-    description: "Learn React.js from scratch and build modern web applications",
-    thumbnail: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=500&auto=format&fit=crop&q=60",
-    level: "beginner",
-    enrolledCount: 456,
-    totalDuration: 960,
-    chaptersCount: 10,
-    price: 0,
-    isFree: true,
-  },
+  const handleStatusChange = async () => {
+    await changeStatus(course.id);
+  };
 
-  {
-    id: 2,
-    title: "React.js for Beginners",
-    description: "Learn React.js from scratch and build modern web applications",
-    thumbnail: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=500&auto=format&fit=crop&q=60",
-    level: "beginner",
-    enrolledCount: 456,
-    totalDuration: 960,
-    chaptersCount: 10,
-    price: 0,
-    isFree: true,
-  },
-];
+  return (
+    <Card className="flex flex-col">
+      <div className="relative h-36 w-full">
+        <img
+          src={course.thumbnail}
+          alt={course.title}
+          className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
+        />
+        <Badge
+          className="absolute top-4 right-4 capitalize"
+          variant={
+            course.level === "beginner"
+              ? "secondary"
+              : course.level === "intermediate"
+              ? "default"
+              : "destructive"
+          }
+        >
+          {course.level}
+        </Badge>
+      </div>
 
-function formatDuration(minutes) {
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-  return `${hours}h ${remainingMinutes}m`;
-}
+      <CardHeader>
+        <CardTitle className="line-clamp-2">{course.title}</CardTitle>
+        <CardDescription className="line-clamp-2">
+          {course.description}
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent className="flex-grow">
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <div className="flex items-center gap-1">
+            <Clock className="w-4 h-4" />
+            <span>{formatDuration(course.totalDuration)}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <BookOpen className="w-4 h-4" />
+            <span>{course.chapterCount} chapters</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Users className="w-4 h-4" />
+            <span>{course.enrollmentCount} enrolled</span>
+          </div>
+        </div>
+        <div className="mt-2 flex gap-3">
+          <Badge variant={course.isFree ? "secondary" : "default"}>
+            {course.isFree ? "Free" :<><IndianRupee width={15}/>{course.price}</> }
+          </Badge>
+          {course.status === "published" && (
+            <div className="flex text-sm items-center gap-1">
+              <BookCheck className="w-4 h-4" /> published
+            </div>
+          )}
+        </div>
+      </CardContent>
+
+      <CardFooter className="flex gap-2">
+        <Link href={`/instructor/home/course/manage/${course.id}`}>
+          <Button className="flex bg-indigo-500 text-white hover:bg-indigo-600 hover:text-white">
+            Edit
+          </Button>
+        </Link>
+        {course.status === "draft" && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline">Publish</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Publish Course</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to publish this course? Once published, it will be visible to all students.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleStatusChange} disabled={loading}>
+                  {loading ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : null}
+                  Publish
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+        <Link href={`/instructor/home/course/manage/preview/${course.id}`}>
+          <Button variant="outline">Preview</Button>
+        </Link>
+      </CardFooter>
+    </Card>
+  );
+};
 
 export default function ManageCoursesPage() {
+  const { fetchData:featchCourse, loading:courseLoading, data:courseData, error } = useFetch();
+  const { fetchData:changeCourseStatus, loading:statusLoading,} = useFetch();
+  const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [courses, setCourses] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit, setLimit] = useState(30);
+  // Custom debounce using useEffect
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [query]);
+
+  // Fetch courses when debounced query changes
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        await featchCourse({
+          url: debouncedQuery
+            ? `/api/instructor/action/course?search=${debouncedQuery}&limit=${limit}&page=${currentPage}`
+            : `/api/instructor/action/course?limit=${limit}&page=${currentPage}`,
+          method: "GET",
+        });
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
+
+    fetchCourses();
+  }, [debouncedQuery,limit,currentPage]);
+
+  useEffect(() => {
+    if (courseData) {
+      setTotalPages(courseData?.data.total);
+      
+      setCourses(courseData?.data?.courses || []);
+    }
+  }, [courseData]);
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-red-500">Error loading courses. Please try again.</p>
+      </div>
+    );
+  }
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const changeStatus=async(id)=>{
+  await changeCourseStatus({
+    url:`/api/instructor/action/course/${id}`,
+    method:"PUT"
+  })
+  }
+
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex justify-between items-center mb-8">
+    <div className="container mx-auto py-2 px-4">
+      <div className="flex justify-between items-center mb-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Courses</h1>
-          <p className="text-gray-600 mt-2">Manage and track your created courses</p>
+          <h1 className="text-xl font-bold text-gray-900">My Courses</h1>
+          <p className="text-gray-600 mt-2">
+            Manage and track your created courses
+          </p>
         </div>
         <Link href="/instructor/home/course/new">
-          <Button size="lg">
-            Create New Course
-          </Button>
+          <Button>Create New Course</Button>
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {courses.map((course) => (
-          <Card key={course.id} className="flex flex-col">
-            <div className="relative h-48 w-full">
-              <img
-                src={course.thumbnail}
-                alt={course.title}
-                className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
-              />
-              <Badge
-                className="absolute top-4 right-4 capitalize"
-                variant={course.level === 'beginner' ? 'secondary' :
-                  course.level === 'intermediate' ? 'default' :
-                    'destructive'}
-              >
-                {course.level}
-              </Badge>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="flex gap-2 items-center col-span-full">
+          <Input
+            placeholder="Search Course"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="max-w-md"
+          />
+        </div>
 
-            <CardHeader>
-              <CardTitle className="line-clamp-2">{course.title}</CardTitle>
-              <CardDescription className="line-clamp-2">
-                {course.description}
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent className="flex-grow">
-              <div className="flex items-center gap-4 text-sm text-gray-600">
-                <div className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  <span>{formatDuration(course.totalDuration)}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <BookOpen className="w-4 h-4" />
-                  <span>{course.chaptersCount} chapters</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Users className="w-4 h-4" />
-                  <span>{course.enrolledCount} enrolled</span>
-                </div>
+        {courseLoading ? (
+          <div className="col-span-full flex justify-center items-center h-64">
+            <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+          </div>
+        ) : courses.length > 0 ? (
+          <>
+            {courses.map((course) => (
+              <CourseCard key={course.id} course={course} changeStatus={changeStatus} loading={statusLoading}/>
+            ))}
+            {totalPages > limit && (
+              <div className="col-span-full">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
               </div>
-              <div className="mt-4">
-                <Badge variant={course.isFree ? "secondary" : "default"}>
-                  {course.isFree ? "Free" : `$${course.price}`}
-                </Badge>
-              </div>
-            </CardContent>
-
-            <CardFooter className="flex gap-2">
-              <Link href={`/instructor/home/course/manage/${course.id}`}>
-                <Button variant="outline" className="flex bg-indigo-500 text-white hover:bg-indigo-600 hover:text-white">
-                  Edit
-                </Button></Link>
-              <Button variant="outline" className="flex">
-                <Link href={`/instructor/home/course/manage/preview/${course.id}`}>preview</Link>
-              </Button>
-              
-            </CardFooter>
-          </Card>
-        ))}
+            )}
+          </>
+        ) : (
+          <div className="col-span-full flex justify-center items-center h-64">
+            <p className="text-gray-500">No courses found</p>
+          </div>
+        )}
       </div>
-      <div className='mt-8 flex justify-center items-center'><button className='bg-indigo-500 text-white hover:bg-indigo-600 hover:text-white flex justify-center items-center px-4 py-2 rounded-lg'>Prev</button><input type="text" className='text-center w-20 p-2 border-2' value={'01'}/><button className='bg-indigo-500 text-white hover:bg-indigo-600 hover:text-white flex justify-center items-center px-4 py-2 rounded-lg'>Next</button></div>
+
+      <div></div>
     </div>
   );
 }

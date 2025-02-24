@@ -1,71 +1,103 @@
-import { BackgroundBeams } from '@/components/ui/background-beams'
-import React from 'react'
-import { Roboto, Lato } from 'next/font/google'
-import { BookOpen, Clock, Eye, PlayCircle, TrendingUp, User2, UserPlus, Users, Heart,HandHeart } from 'lucide-react'
-import { HoverEffect } from '@/components/ui/card-hover-effect'
-import { InfiniteMovingCards } from '@/components/ui/infinite-moving-cards'
-import Image from 'next/image'
-import Link from 'next/link'
+import { BackgroundBeams } from "@/components/ui/background-beams";
+import React from "react";
+import { Roboto, Lato } from "next/font/google";
+import {
+  BookOpen,
+  Clock,
+  Eye,
+  PlayCircle,
+  TrendingUp,
+  User2,
+  UserPlus,
+  Users,
+  Heart,
+  HandHeart,
+  Network,
+  Brain,
+  Shield,
+  Cpu,
+  Code2,
+  Database,
+  Server,
+  Globe,
+  Phone,
+  CircuitBoard,
+  Cloud,
+  TrainFront,
+} from "lucide-react";
+import { HoverEffect } from "@/components/ui/card-hover-effect";
+import { InfiniteMovingCards } from "@/components/ui/infinite-moving-cards";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 const roboto = Roboto({
-  variable: '--font-roboto',
-  subsets: ['latin'],
-  weight: '900',
-})
-
+  variable: "--font-roboto",
+  subsets: ["latin"],
+  weight: "900",
+});
 
 function Page() {
   return (
-    <  >
+    <>
       <div className="w-full text-center flex flex-col justify-between items-center  h-screen ">
-        <div className='flex flex-1 flex-col justify-center items-center gap-4 p-4' style={
-          {
+        <div
+          className="flex flex-1 flex-col justify-center items-center gap-4 p-4"
+          style={{
             fontFamily: roboto.variable,
-          }
-        }>
-          <p className="text-4xl md:text-5xl font-bold" >
-            Code Smarter, Dream Bigger with{' '}
-            <span
-              className="bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-violet-500 to-pink-500 py-4"
-
-            >
+          }}
+        >
+          <p className="text-4xl md:text-5xl font-bold">
+            Code Smarter, Dream Bigger with{" "}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-violet-500 to-pink-500 py-4">
               Programmer Wallah
             </span>
           </p>
-          <p className="w-10/12 md:w-8/12 text-gray-600 text-base md:text-lg" style={
-            {
+          <p
+            className="w-10/12 md:w-8/12 text-gray-600 text-base md:text-lg"
+            style={{
               fontFamily: roboto.variable,
-            }
-          }>
-            Empowering you to master programming with interactive courses, real-time collaboration,
-            hands-on projects, and expert guidance. Unlock your potential, build your dream career,
-            and become a leader in the tech world. Join us today and turn your coding aspirations into
-            reality!
+            }}
+          >
+            Empowering you to master programming with interactive courses,
+            real-time collaboration, hands-on projects, and expert guidance.
+            Unlock your potential, build your dream career, and become a leader
+            in the tech world. Join us today and turn your coding aspirations
+            into reality!
           </p>
           <div className="flex gap-4 z-10">
-          <Link href={"/courses"}>
-           <button className="bg-gradient-to-r bg-purple-500  text-white rounded-full px-6 py-3 mt-3">
-              Explore
-            </button>
-          </Link>
-          <Link href={"/sign-in"}>
-            <button className="bg-gradient-to-r from-orange-500 to-violet-500  hover:bg-orange-500 text-white rounded-full px-6 py-3 mt-3">
-              Join Us
-            </button>
-          </Link>
+            <Link href={"/courses"}>
+              <button className="bg-gradient-to-r bg-purple-500  text-white rounded-full px-6 py-3 mt-3">
+                Explore
+              </button>
+            </Link>
+            <Link href={"/sign-in"}>
+              <button className="bg-gradient-to-r from-orange-500 to-violet-500  hover:bg-orange-500 text-white rounded-full px-6 py-3 mt-3">
+                Join Us
+              </button>
+            </Link>
           </div>
         </div>
 
-        <div className='w-screen'>
+        <div className="w-screen">
           <CourseEnrollment />
-
         </div>
 
         <BackgroundBeams />
       </div>
-
-      <div className="w-full mx-auto px-4 py-16 sm:px-6 lg:px-8 " style={{
-        fontFamily: roboto.variable,
-      }}>
+      <div className="w-full mx-auto px-4 py-16 sm:px-6 lg:px-8">
+        <CourseCategories />
+      </div>
+      <div
+        className="w-full mx-auto px-4 py-16 sm:px-6 lg:px-8 "
+        style={{
+          fontFamily: roboto.variable,
+        }}
+      >
         <div className="flex flex-col lg:flex-row items-center gap-12">
           {/* Left Content */}
           <div className="flex-1 space-y-8">
@@ -78,8 +110,9 @@ function Page() {
             </h1>
 
             <p className="text-lg text-gray-600">
-              The automated process all your website tasks. Discover tools and techniques
-              to engage effectively with vulnerable children and young people.
+              The automated process all your website tasks. Discover tools and
+              techniques to engage effectively with vulnerable children and
+              young people.
             </p>
 
             <div className="space-y-6">
@@ -105,25 +138,29 @@ function Page() {
               alt="Students learning"
               className="rounded-2xl shadow-2xl"
             />
-
           </div>
         </div>
       </div>
 
-      <div className="w-full mx-auto px-4 py-16 sm:px-6 lg:px-8 " style={{
-        fontFamily: roboto.variable,
-      }}>
+      <div
+        className="w-full mx-auto px-4 py-16 sm:px-6 lg:px-8 "
+        style={{
+          fontFamily: roboto.variable,
+        }}
+      >
         <StudentsSelectedForCompany />
       </div>
 
-      <div className="w-full mx-auto px-4 py-16 sm:px-6 lg:px-8 " style={{
-        fontFamily: roboto.variable,
-      }}>
+      <div
+        className="w-full mx-auto px-4 py-16 sm:px-6 lg:px-8 "
+        style={{
+          fontFamily: roboto.variable,
+        }}
+      >
         <StudentReviews />
       </div>
-
     </>
-  )
+  );
 }
 
 function StudentsSelectedForCompany() {
@@ -143,63 +180,180 @@ function StudentsSelectedForCompany() {
     "/company/e24ce5f542c45a73c05172d9c4f38e2e.png",
     "/company/ec5be16b046b62a2a860b67f9dc55b86.png",
     "/company/ee17a1d06126f8bfc5444ad666e8ba21.png",
-
-
-  ]
+  ];
   return (
     <div>
-      <div className='text-center text-4xl font-bold  bg-clip-text text-transparent bg-neutral-700' >Thousands of students achieved their dream job at</div>
-      <div className='flex justify-between gap-3 flex-wrap mt-12'>
-        {
-          company.map((items) => (
-            <Image
-              src={items}
-              alt="Company Logo"
-              width={200}
-              height={200}
-              className="rounded-lg shadow-md p-2"
-              key={items}
-            />
-          ))
-        }
+      <div className="text-center text-4xl font-bold  bg-clip-text text-transparent bg-neutral-700">
+        Thousands of students achieved their dream job at
+      </div>
+      <div className="flex justify-between gap-3 flex-wrap mt-12">
+        {company.map((items) => (
+          <Image
+            src={items}
+            alt="Company Logo"
+            width={200}
+            height={200}
+            className="rounded-lg shadow-md p-2"
+            key={items}
+          />
+        ))}
       </div>
     </div>
-  )
+  );
 }
+const CourseCategories = () => {
+  const categories = [
+    {
+      title: "Web Development",
+      slug:"Web-Development",
+      icon: <Globe className="w-8 h-8 text-blue-500" />,
+      description:
+        "Master frontend technologies like HTML, CSS, JavaScript, React, and more",
+    },
+    {
+      title: "Backend Development",
+      slug:"Backend-Development",
+      icon: <Server className="w-8 h-8 text-green-500" />,
+      description:
+        "Learn server-side programming with Node.js, Python, Java, and databases",
+    },
+    {
+      title: "Database Management",
+      slug:"Database-Management",
+      icon: <Database className="w-8 h-8 text-purple-500" />,
+      description: "Explore SQL, NoSQL databases, and data modeling techniques",
+      courses: 12,
+    },
+    {
+      title: "Programming Languages",
+      slug:"Programming-Languages",
+      icon: <Code2 className="w-8 h-8 text-red-500" />,
+      description:
+        "Learn C, C++, Java, Python, and other popular programming languages",
+    },
+    {
+      title: "Computer Architecture",
+      icon: <Cpu className="w-8 h-8 text-yellow-500" />,
+      slug:"Computer-Architecture",
+      description:
+        "Understand computer organization, assembly language, and system design",
+    },
+    {
+      title: "Cybersecurity",
+      icon: <Shield className="w-8 h-8 text-orange-500" />,
+      slug:"Cybersecurity",
+      description:
+        "Learn network security, ethical hacking, and security best practices",
+    },
+    {
+      title: "Artificial Intelligence",
+      icon: <Brain className="w-8 h-8 text-indigo-500" />,
+      slug:"Artificial-Intelligence",
+      description:
+        "Explore machine learning, deep learning, and AI applications",
+    },
+    {
+      title: "DevOps",
+      icon: <CircuitBoard className="w-8 h-8 text-teal-500" />,
+      slug:"DevOps",
+      description:
+        "Master containerization, CI/CD, and cloud deployment strategies",
+    },
+    {
+      title: "Mobile Development",
+      slug:"Mobile-Development",
+      icon: <Phone className="w-8 h-8 text-pink-500" />,
+      description: "Build iOS and Android apps using React Native and Flutter",
+    },
+    {
+      title: "Computer Networks",
+      icon: <Network className="w-8 h-8 text-cyan-500" />,
+      slug:"Computer-Networks",
+      description:
+        "Learn networking protocols, architecture, and administration",
+    },
+   
+    {
+      title: "Cloud Computing",
+      slug:"Cloud-Computing",
+      icon: <Cloud className="w-8 h-8 text-blue-400" />,
+      description:
+        "Learn AWS, Azure, Google Cloud, and cloud-native development",
+    },
+  ];
 
+  return (
+    <div className="w-full p-8">
+      <h2 className="text-3xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-violet-500">
+        Explore Our Course Categories
+      </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {categories.map((category, index) => (
+          <Link 
+          href={`/courses?category=${category.slug}`} 
+          key={index}
+        >
+          <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer">
+            <CardHeader>
+              <div className="flex items-center gap-4 mb-2">
+                {category.icon}
+                <CardTitle className="text-xl group-hover:text-purple-500 transition-colors">
+                  {category.title}
+                </CardTitle>
+              </div>
+              <CardDescription className="text-gray-600">
+                {category.description}
+              </CardDescription>
+              <div className="mt-4 text-sm text-gray-500">
+                {category.courses} courses available
+              </div>
+            </CardHeader>
+          </Card>
+        </Link>
+        ))}
+      </div>
+    </div>
+  );
+};
 function CourseEnrollment() {
   return (
     <div className="w-full bg-gradient-to-b from-transparent to-indigo-600 flex items-center justify-center p-10 flex-col  ">
       <div className="text-center mb-8">
         <h1 className="text-2xl  font-bold mb-2  bg-clip-text text-transparent bg-gradient-to-r from-purple-500  to-violet-400">
-          INDIA'S MOST LOVED CODING COMMUNITY <Heart className="inline-block w-6 h-6 text-red-500 ml-2 animate-pulse" />
+          INDIA'S MOST LOVED CODING COMMUNITY{" "}
+          <Heart className="inline-block w-6 h-6 text-red-500 ml-2 animate-pulse" />
         </h1>
       </div>
       <div className="flex justify-center gap-10 items-center">
-
-        <div className='flex justify-center flex-col items-center gap-1 text-white'>
-
-          <div className='flex justify-center items-center gap-3'>
+        <div className="flex justify-center flex-col items-center gap-1 text-white">
+          <div className="flex justify-center items-center gap-3">
             <Users className="w-9 h-9 " />
             <div className="text-2xl font-bold text-blod mb-2">6,000,000+</div>
           </div>
-          <div className=" uppercase tracking-wide text-white font-bold">Happy Learners</div>
+          <div className=" uppercase tracking-wide text-white font-bold">
+            Happy Learners
+          </div>
         </div>
-        <div className='flex justify-center flex-col items-center gap-1 text-white'>
-
-          <div className='flex justify-center items-center gap-3 '>
+        <div className="flex justify-center flex-col items-center gap-1 text-white">
+          <div className="flex justify-center items-center gap-3 ">
             <HandHeart className="w-9 h-9 " />
-            <div className="text-2xl font-bold text-blod mb-2 uppercase">3 Core+</div>
+            <div className="text-2xl font-bold text-blod mb-2 uppercase">
+              3 Core+
+            </div>
           </div>
-          <div className=" uppercase tracking-wide  font-bold">monthly views</div>
+          <div className=" uppercase tracking-wide  font-bold">
+            monthly views
+          </div>
         </div>
-        <div className='flex justify-center flex-col items-center gap-1  text-white'>
-
-          <div className='flex justify-center items-center gap-3'>
+        <div className="flex justify-center flex-col items-center gap-1  text-white">
+          <div className="flex justify-center items-center gap-3">
             {/* <Link className="w-9 h-9 " /> */}
-            <div className="text-2xl font-bold text-blod mb-2  ">1,000,000+</div>
+            <div className="text-2xl font-bold text-blod mb-2  ">
+              1,000,000+
+            </div>
           </div>
-          <div className=" uppercase tracking-wide  font-bold">new monthly subscribers
+          <div className=" uppercase tracking-wide  font-bold">
+            new monthly subscribers
           </div>
         </div>
       </div>
@@ -209,9 +363,7 @@ function CourseEnrollment() {
 function FeatureItem({ icon, text }) {
   return (
     <div className="flex items-start space-x-3">
-      <div className="flex-shrink-0 mt-1">
-        {icon}
-      </div>
+      <div className="flex-shrink-0 mt-1">{icon}</div>
       <p className="text-gray-600">{text}</p>
     </div>
   );
@@ -220,56 +372,70 @@ export function CardHoverEffect() {
   const projects = [
     {
       title: "C",
-      description: "A general-purpose, procedural programming language used for system programming.",
+      description:
+        "A general-purpose, procedural programming language used for system programming.",
       link: "https://en.wikipedia.org/wiki/C_(programming_language)",
     },
     {
       title: "C++",
-      description: "An extension of C that includes object-oriented features and supports both high- and low-level programming.",
+      description:
+        "An extension of C that includes object-oriented features and supports both high- and low-level programming.",
       link: "https://en.wikipedia.org/wiki/C%2B%2B",
     },
     {
       title: "Java",
-      description: "A class-based, object-oriented programming language designed for portability across platforms.",
+      description:
+        "A class-based, object-oriented programming language designed for portability across platforms.",
       link: "https://www.java.com",
     },
     {
       title: "HTML & CSS",
-      description: "The standard markup language for creating web pages, and a style sheet language used for designing web pages.",
+      description:
+        "The standard markup language for creating web pages, and a style sheet language used for designing web pages.",
       link: "https://developer.mozilla.org/en-US/docs/Web/HTML",
     },
     {
       title: "React",
-      description: "A JavaScript library for building user interfaces, maintained by Facebook.",
+      description:
+        "A JavaScript library for building user interfaces, maintained by Facebook.",
       link: "https://reactjs.org",
     },
     {
       title: "Node.js",
-      description: "A JavaScript runtime built on Chrome's V8 JavaScript engine, used for building server-side applications.",
+      description:
+        "A JavaScript runtime built on Chrome's V8 JavaScript engine, used for building server-side applications.",
       link: "https://nodejs.org",
     },
     {
       title: "Next.js",
-      description: "A React-based framework for building server-side rendered and statically generated web applications.",
+      description:
+        "A React-based framework for building server-side rendered and statically generated web applications.",
       link: "https://nextjs.org",
     },
     {
       title: "Socket.io",
-      description: "A JavaScript library for real-time web applications, enabling real-time, bidirectional communication between web clients and servers.",
+      description:
+        "A JavaScript library for real-time web applications, enabling real-time, bidirectional communication between web clients and servers.",
       link: "https://socket.io",
     },
     {
       title: "C#",
-      description: "A modern, object-oriented programming language developed by Microsoft for building a wide range of applications.",
+      description:
+        "A modern, object-oriented programming language developed by Microsoft for building a wide range of applications.",
       link: "https://learn.microsoft.com/en-us/dotnet/csharp/",
     },
   ];
 
   return (
     <div className="">
-      <h1 className='  text-4xl text-center font-bold bg-clip-text text-transparent bg-purple-600' style={{
-        fontFamily: roboto.variable,
-      }}>Explore top subjects</h1>
+      <h1
+        className="  text-4xl text-center font-bold bg-clip-text text-transparent bg-purple-600"
+        style={{
+          fontFamily: roboto.variable,
+        }}
+      >
+        Explore top subjects
+      </h1>
       <HoverEffect items={projects} className={""} />
     </div>
   );
@@ -402,7 +568,9 @@ export function StudentReviews() {
 
   return (
     <div>
-      <div className='text-center text-4xl font-bold  bg-clip-text text-transparent bg-neutral-700' >Students Who Chased Dreams and Landed Careers</div>
+      <div className="text-center text-4xl font-bold  bg-clip-text text-transparent bg-neutral-700">
+        Students Who Chased Dreams and Landed Careers
+      </div>
       <InfiniteMovingCards
         items={testimonials}
         direction="right"
@@ -416,9 +584,7 @@ export function StudentReviews() {
         className={"mt-3"}
       />
     </div>
-
   );
 }
 
-
-export default Page
+export default Page;

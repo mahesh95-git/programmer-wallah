@@ -28,8 +28,8 @@ const userSchema = new mongoose.Schema({
   },
   isApprovedInstructor: {
     type: String,
-    enum: ["approved", "pending", "rejected"],
-    default: "pending",
+    enum: ["approved", "pending", "rejected","notapplied"],
+    default: "notapplied",
   },
   profile: {
     type: String,
@@ -63,7 +63,7 @@ const userSchema = new mongoose.Schema({
     {
       courseId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Course",
+        ref: "course",
       },
       enrolledAt: {
         type: Date,
@@ -80,15 +80,12 @@ const userSchema = new mongoose.Schema({
   contactNumber: {
     type: String,
     trim: true,
-    minLength: [10, "Contact number must be at least 10 characters"],
-    maxLength: [15, "Contact number cannot exceed 15 characters"],
-    validate: [validator.isMobilePhone, "please provide valid phone number"],
     default: "",
   },
   createdCourses: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Course",
+      ref: "course",
     },
   ],
   createdAt: {

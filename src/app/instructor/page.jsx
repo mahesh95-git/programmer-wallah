@@ -25,6 +25,7 @@ export default function InstructorForm() {
   const [qualificationcCertificate, setQualificationcCertificate] = useState(null);
   const [profile, setProfile] = useState(null);
   const { fetchData, data, loading, error } = useFetch()
+  const [profilePicture,setProfilePicture]=useState(null);
   const router = useRouter()
   const form = useForm({
     resolver: zodResolver(instructorSchema),
@@ -90,14 +91,46 @@ export default function InstructorForm() {
       <Form {...form} >
         <form onSubmit={form.handleSubmit(onSubmit)} className="w-1/3 space-y-6   p-5 rounded-2xl shadow-slate-400 shadow-lg bg-white  " >
           <h1 className="text-center text-2xl">Join as an Instructor</h1>
-          <div className="flex justify-center flex-col items-center gap-6  relative">
+
+          
+          <div className="flex justify-center mb-8 relative">
+            <div className="relative w-32 h-32 bg-[#d8d8da] rounded-full">
+              {profilePicture ? (
+                <img
+                  src={profilePicture}
+                  alt="Profile"
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) :  (
+                <>
+                  <div className="absolute bottom-0 right-0 p-2 bg-[#e5e4e4] rounded-full shadow-lg">
+                    <SquarePen className="w-5 h-5 text-gray-600" />
+                  </div>
+                  
+                  <input
+                    type="file"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setProfile(file);
+                        setProfilePicture(URL.createObjectURL(file));
+                      }
+                    }}
+                  />
+                </>
+              )}
+            </div>
+          </div>
+          {/* <div className="flex justify-center flex-col items-center gap-6  relative">
             <div className="absolute z-20" >PF</div>
             <div className=" border-gray-300 w-32 h-32 absolute rounded-full bg-gray-300">
               <SquarePen className="w-9 h-9 absolute right-3 bottom-2" />
             </div>
 
             <input type="file" className=" w-32 h-32 bg-gray-200 border z-10 opacity-0  rounded-full cursor-pointer" accept="image/*" multiple={false} onChange={(event) => setProfile(event.target.files[0])} />
-          </div>
+          </div> */}
           <FormField
             control={form.control}
             name="expertise"

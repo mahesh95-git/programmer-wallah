@@ -4,7 +4,9 @@ import Course from "@/models/course.model";
 import dpConnect from "@/services/dpconnection";
 import { getAuth } from "@clerk/nextjs/server";
 import { uploadFileToCloudinary } from "@/lib/cloudinary";
+import mongoose from "mongoose";
 
+// create new course
 export async function POST(req) {
   try {
     await dpConnect();
@@ -113,6 +115,9 @@ export async function POST(req) {
         });
       }
     );
+
+    console.log(chaptersLessons);
+
     const uploadPromises = chaptersLessons.map(async (lessonFiles) => {
       return await uploadFileToCloudinary(lessonFiles);
     });
@@ -133,7 +138,7 @@ export async function POST(req) {
       };
     });
 
-     const duration = chapters.reduce((prev = 0, element) => {
+    const duration = chapters.reduce((prev = 0, element) => {
       return (
         prev + element.lessons.reduce((total, item) => total + item.duration, 0)
       );
@@ -172,5 +177,78 @@ export async function POST(req) {
       },
       { status: 500 }
     );
+  }
+}
+
+// get instructor courses
+export async function GET(req) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const courseName = searchParams.get("search");
+    const page = parseInt(searchParams.get("page")) || 1;
+    const limit = parseInt(searchParams.get("limit")) || 10;
+    console.log("Page:", page, "Limit:", limit); // Debugging log
+    const { userId } = await getAuth(req);
+    await dpConnect();
+    let user = await User.findOne({ userId }).select(
+      "_id role isApprovedInstructor"
+    );
+    if (!user) {
+      return NextResponse.json(
+        {
+          message: "User not found",
+          success: false,
+        },
+        { status: 404 }
+      );
+    }
+
+    if (user.role !== "instructor") {
+      return NextResponse.json(
+        {
+          message: "User is not an instructor",
+          success: false,
+        },
+        { status: 403 }
+      );
+    }
+
+    if (user.isApprovedInstructor !== "approved") {
+      return NextResponse.json(
+        {
+          message: "Instructor approval is pending",
+          success: false,
+        },
+        { status: 403 }
+      );
+    }
+
+    const skip = (page - 1) * limit;
+    let instructorCourses = await Course.find({
+      instructor: new mongoose.Types.ObjectId(user._id),
+    })
+      .select(
+        "_id title description thumbnail level status chapters enrolledStudents totalDuration enrollmentCount price isFree chapterCount"
+      )
+      .populate();
+
+    if (courseName) {
+      instructorCourses = instructorCourses.filter((item, idx) =>
+        new RegExp(courseName, "i").test(item.title)
+      );
+    }
+    const total = instructorCourses.length;
+    const paginatioCourses = instructorCourses.slice(skip, skip + limit);
+    return NextResponse.json({
+      message: "courses featch successfully",
+      data: { courses: paginatioCourses, total, limit, skip } || [],
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json({
+      message: error.message,
+      success: false,
+    });
   }
 }

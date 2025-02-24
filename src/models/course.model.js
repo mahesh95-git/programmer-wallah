@@ -16,7 +16,7 @@ const courseSchema = new mongoose.Schema(
 
     instructor: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "users",
       required: true,
     },
     price: {
@@ -71,35 +71,21 @@ const courseSchema = new mongoose.Schema(
       {
         student: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
+          ref: "users",
+          required: true,
         },
         enrolledAt: {
           type: Date,
           default: Date.now,
         },
-        completedChapters: [
-          {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "CourseChapter",
-          },
-        ],
-        progress: {
-          type: Number,
-          default: 0,
-          min: 0,
-          max: 100,
-        },
-        lastAccessed: {
-          type: Date,
-          default: Date.now,
-        },
+       
       },
     ],
     reviews: [
       {
         user: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
+          ref: "users",
         },
         rating: {
           type: Number,
@@ -144,10 +130,6 @@ const courseSchema = new mongoose.Schema(
       type: String,
       default: "English",
     },
-    enrolledCount: {
-      type: Number,
-      default: 0,
-    },
   },
   {
     timestamps: true,
@@ -158,10 +140,12 @@ const courseSchema = new mongoose.Schema(
 
 // Virtual for enrollment count
 courseSchema.virtual("enrollmentCount").get(function () {
-  return this.enrolledStudents.length;
+  return this.enrolledStudents?.length || 0;
 });
 
-// Methods
+courseSchema.virtual("chapterCount").get(function () {
+  return this.chapters?.length;
+});
 courseSchema.methods.addStudent = async function (studentId) {
   if (
     !this.enrolledStudents.find(

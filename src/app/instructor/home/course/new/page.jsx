@@ -60,7 +60,7 @@ useEffect(()=>{
     toast({
       title:error|| "error while creating course try again"    })
   }
-},data,error)
+},[data,error])
 
   const form = useForm({
     resolver: zodResolver(courseSchema),
@@ -139,7 +139,7 @@ useEffect(()=>{
       const reader = new FileReader();
       reader.onloadend = () => {
         setThumbnailPreview(reader.result);
-        form.setValue("thumbnail", reader.result);
+        form.setValue("thumbnail", "thubmnail");
       };
       reader.readAsDataURL(file);
     }
@@ -187,11 +187,51 @@ useEffect(()=>{
 
   const removeChapter = (index) => {
     if (chapters.length > 1) {
-      const updatedChapters = chapters.filter((_, i) => i !== index);
+      const currentFormValues = form.getValues();
+      
+      const updatedChapters = currentFormValues.chapters.filter((_, i) => i !== index);
+      
+      updatedChapters.forEach((chapter, newIndex) => {
+        chapter.order = newIndex + 1;
+      });
+  
+      // Store old files before updating
+      const oldFiles = { ...lessonFiles };
+      const oldPreviews = { ...lessonPreviews };
+      
+      // Create new file mappings
+      const updatedFiles = {};
+      const updatedPreviews = {};
+  
+      // Map files to their new positions
+      updatedChapters.forEach((chapter, newChapterIndex) => {
+        chapter.lessons.forEach((lesson, lessonIndex) => {
+          // Determine the original chapter index for this position
+          const originalChapterIndex = newChapterIndex >= index ? 
+            newChapterIndex + 1 : newChapterIndex;
+          
+          // Create old and new keys
+          const oldKey = `${originalChapterIndex}-${lessonIndex}`;
+          const newKey = `${newChapterIndex}-${lessonIndex}`;
+  
+          // Only copy if file exists
+          if (oldFiles[oldKey]) {
+            updatedFiles[newKey] = oldFiles[oldKey];
+            updatedPreviews[newKey] = oldPreviews[oldKey];
+          }
+        });
+      });
+  
+      // Update all states in specific order
+      setLessonFiles(updatedFiles);
+      setLessonPreviews(updatedPreviews);
       setChapters(updatedChapters);
+      
+      // Update form with complete chapter data
       form.setValue("chapters", updatedChapters);
     }
   };
+  
 
   const removeLesson = (chapterIndex, lessonIndex) => {
     if (chapters[chapterIndex].lessons.length > 1) {
@@ -225,27 +265,33 @@ useEffect(()=>{
         return updated;
       });
 
-      // Update remaining lessons' file keys
       const updatedFiles = {};
-      const updatedPreviews = {};
-      Object.keys(lessonFiles).forEach((key) => {
-        const [chIdx, lsnIdx] = key.split("-").map(Number);
-        if (chIdx === chapterIndex && lsnIdx > lessonIndex) {
-          // Shift the keys for lessons after the removed one
-          updatedFiles[`${chIdx}-${lsnIdx - 1}`] = lessonFiles[key];
+    const updatedPreviews = {};
 
-          updatedPreviews[`${chIdx}-${lsnIdx - 1}`] = lessonPreviews[key];
-        } else if (chIdx !== chapterIndex) {
-          // Keep other chapters' lessons as is
-          updatedFiles[key] = lessonFiles[key];
-          updatedPreviews[key] = lessonPreviews[key];
+
+
+
+    // Loop through all chapters and lessons to maintain correct mappings
+    updatedChapters.forEach((chapter, chapIdx) => {
+      chapter.lessons.forEach((lesson, lessIdx) => {
+        const oldKey = chapIdx === chapterIndex ? 
+          (lessIdx >= lessonIndex ? `${chapIdx}-${lessIdx + 1}` : `${chapIdx}-${lessIdx}`) :
+          `${chapIdx}-${lessIdx}`;
+        const newKey = `${chapIdx}-${lessIdx}`;
+
+        if (lessonFiles[oldKey]) {
+          updatedFiles[newKey] = lessonFiles[oldKey];
+          updatedPreviews[newKey] = lessonPreviews[oldKey];
         }
       });
+    });
 
-      setLessonFiles(updatedFiles);
-      setLessonPreviews(updatedPreviews);
+    setLessonFiles(updatedFiles);
+    setLessonPreviews(updatedPreviews);
     }
   };
+
+  console.log(lessonPreviews)
   const addLearningObjective = () => {
     const currentObjectives = form.getValues("whatYouLearn") || [];
     form.setValue("whatYouLearn", [...currentObjectives, ""]);
@@ -259,16 +305,16 @@ useEffect(()=>{
 
   return (
     <div className="p-2 bg-gray-50">
-      <p className="text-2xl font-bold p-2">Create a New Course</p>
+      <p className="text-xl font-bold p-2">Create a New Course</p>
       <div className="py-2 flex gap-6 px-2">
         <div className="flex-1">
           <div className="bg-white p-3 rounded-xl shadow-sm">
-            <h1 className="text-xl font-bold text-gray-900 mb-8">
+            <h1 className="text-md font-bold text-gray-900 mb-2">
               Course Chapters
             </h1>
 
             <Form {...form}>
-              <form className="space-y-6">
+              <form className="space-y-2">
                 {chapters.map((chapter, chapterIndex) => (
                   <div
                     key={chapterIndex}
@@ -476,8 +522,8 @@ useEffect(()=>{
         </div>
 
         <div className="flex-1">
-          <div className="bg-white p-8 rounded-xl shadow-sm">
-            <h1 className="text-2xl font-bold text-gray-900 mb-8">
+          <div className="bg-white p-3 rounded-xl shadow-sm">
+            <h1 className="text-md font-bold text-gray-900 mb-2">
               Course Details
             </h1>
 

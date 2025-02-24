@@ -9,7 +9,6 @@ export async function GET(req) {
     try {
         await dpConnect()
         const { userId } = await getAuth(req);
-        console.log(userId)
         const user = await User.findOne({
             userId: userId
         }).select("firstName lastName email expertise bio contactNumber profile qualifications role isApprovedInstructor qualificationCertificate");

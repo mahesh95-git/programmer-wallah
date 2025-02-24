@@ -13,120 +13,110 @@ import {
 const chartData = [
   {
     date: "2024-01-01",
-    desktop: 1200,
-    mobile: 800,
+    revenue: 120000,
   },
   {
     date: "2024-01-02",
-    desktop: 1400,
-    mobile: 900,
+    revenue: 140000,
   },
   {
     date: "2024-01-03",
-    desktop: 1300,
-    mobile: 850,
+    revenue: 13000,
   },
   {
     date: "2024-01-04",
-    desktop: 1500,
-    mobile: 950,
+    revenue: 150000,
   },
   {
     date: "2024-01-05",
-    desktop: 1600,
-    mobile: 1000,
+    revenue: 160000,
   },
   {
     date: "2024-01-06",
-    desktop: 1450,
-    mobile: 920,
+    revenue: 145000,
   },
   {
     date: "2024-01-07",
-    desktop: 1350,
-    mobile: 880,
+    revenue: 13500,
   },
   {
     date: "2024-01-08",
-    desktop: 1700,
-    mobile: 1100,
+    revenue: 17000,
   },
   {
     date: "2024-01-09",
-    desktop: 1800,
-    mobile: 1200,
+    revenue: 18000,
   },
   {
     date: "2024-01-10",
-    desktop: 1650,
-    mobile: 1050,
+    revenue: 16500,
   },
   {
     date: "2024-01-11",
-    desktop: 1550,
-    mobile: 980,
+    revenue: 15500,
   },
   {
     date: "2024-01-12",
-    desktop: 1900,
-    mobile: 1300,
-  }
+    revenue: 19000,
+  },
+  {
+    date: "2023-01-01",
+    revenue: 11000,
+  },
+  {
+    date: "2023-01-02",
+    revenue: 130000,
+  },
+  {
+    date: "2022-01-01",
+    revenue: 100000,
+  },
+  {
+    date: "2022-01-02",
+    revenue: 120000,
+  },
 ]
 
 const chartConfig = {
-  views: {
-    label: "Page Views",
-  },
-  desktop: {
-    label: "Desktop",
+  revenue: {
+    label: "Revenue",
     color: "hsl(var(--chart-1))",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "hsl(var(--chart-2))",
   },
 }
 
 const years = ["2024", "2023", "2022"]
 
 export function AmdinRevenue() {
-  const [activeChart, setActiveChart] = React.useState("desktop")
   const [selectedYear, setSelectedYear] = React.useState("2024")
 
+  const filteredChartData = React.useMemo(() => {
+    return chartData.filter((item) => item.date.startsWith(selectedYear));
+  }, [selectedYear]);
+
   const total = React.useMemo(
-    () => ({
-      desktop: chartData.reduce((acc, curr) => acc + curr.desktop, 0),
-      mobile: chartData.reduce((acc, curr) => acc + curr.mobile, 0),
-    }),
-    []
-  )
+    () => filteredChartData.reduce((acc, curr) => acc + curr.revenue, 0),
+    [filteredChartData]
+  );
 
   const monthlyTotals = React.useMemo(() => {
-    const totals = {}
-    chartData.forEach((data) => {
-      const date = new Date(data.date)
-      const monthKey = date.toLocaleString('default', { month: 'short' })
+    const totals = {};
+    filteredChartData.forEach((data) => {
+      const date = new Date(data.date);
+      const monthKey = date.toLocaleString("default", { month: "short" });
       if (!totals[monthKey]) {
-        totals[monthKey] = {
-          desktop: 0,
-          mobile: 0
-        }
+        totals[monthKey] = 0;
       }
-      totals[monthKey].desktop += data.desktop
-      totals[monthKey].mobile += data.mobile
-    })
-    return totals
-  }, [chartData])
+      totals[monthKey] += data.revenue;
+    });
+    return totals;
+  }, [filteredChartData]);
 
   return (
     <div className="w-full rounded-lg shadow-sm p-6">
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg font-semibold">Revenue Overview</h2>
-          <Select
-            value={selectedYear}
-            onValueChange={setSelectedYear}
-          >
+          <Select value={selectedYear} onValueChange={setSelectedYear}>
             <SelectTrigger className="w-[100px]">
               <SelectValue placeholder="Select year" />
             </SelectTrigger>
@@ -151,7 +141,7 @@ export function AmdinRevenue() {
         >
           <LineChart
             accessibilityLayer
-            data={chartData}
+            data={filteredChartData}
             margin={{
               left: 12,
               right: 12,
@@ -166,30 +156,30 @@ export function AmdinRevenue() {
               tickMargin={8}
               minTickGap={32}
               tickFormatter={(value) => {
-                const date = new Date(value)
+                const date = new Date(value);
                 return date.toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
-                })
+                });
               }}
             />
             <ChartTooltip
               content={
                 <ChartTooltipContent
                   className="w-[150px]"
-                  nameKey="views"
+                  nameKey="revenue"
                   labelFormatter={(value) => {
                     return new Date(value).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
                       year: "numeric",
-                    })
+                    });
                   }}
                 />
               }
             />
             <Line
-              dataKey={activeChart}
+              dataKey="revenue"
               type="monotone"
               stroke={`black`}
               strokeWidth={2}
@@ -204,11 +194,11 @@ export function AmdinRevenue() {
           <div key={month} className="col-span-1 text-center">
             <div className="font-medium">{month}</div>
             <div className="text-gray-500">
-              ${(data[activeChart] * 0.1).toLocaleString()}
+              ${data.toLocaleString()}
             </div>
           </div>
         ))}
       </div>
     </div>
-  )
+  );
 }

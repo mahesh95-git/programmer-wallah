@@ -11,7 +11,6 @@ const adminRoutes = createRouteMatcher([
 ]);
 
 const studentRoutes = createRouteMatcher([
-  
   "/profile(.*)",
   "/my-courses(.*)",
   "/api/instructor/new"
@@ -20,32 +19,46 @@ const studentRoutes = createRouteMatcher([
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth()
   const client = await clerkClient();
+
   if (!userId) {
     if (studentRoutes(req) || instructorRoutes(req) || adminRoutes(req)) {
       return NextResponse.redirect(new URL("/", req.url));
     }
     return NextResponse.next();
   }
+
   const user = await client.users.getUser(userId);
   const role = user.privateMetadata.role || "student";
-const isApprovedInstructor=user.privateMetadata.isApprovedInstructor||"pending"
-
+  const isApprovedInstructor = user.privateMetadata.isApprovedInstructor || "pending";
+  const enrolledCourses = user.privateMetadata.enrolledCourses || [];
+  console.log(enrolledCourses);
+  const pathParts= req.nextUrl.pathname.split("/");
+  if (pathParts.length>=2&&pathParts[1] === "courses" && pathParts[2]) {
+    const courseId = pathParts[2];
+    if (enrolledCourses.includes(courseId)) {
+      return NextResponse.redirect(new URL("/my-courses", req.url));
+    }
+  }
+  
   if (instructorRoutes(req)) {
-    if (role !== "instructor" && role !== "admin"&&isApprovedInstructor!="approved") {
+    if (role !== "instructor" && isApprovedInstructor != "approved") {
       return NextResponse.redirect(new URL("/", req.url));
     }
   }
+
   if (adminRoutes(req)) {
     if (role !== "admin") {
       return NextResponse.redirect(new URL("/", req.url));
     }
   }
-const pathname=req.nextUrl.pathname;
-if(pathname==="/instructor"){
-  if(role==='instructor'){
-    return NextResponse.redirect(new URL("/instructor/home",req.url));
+
+  const pathname = req.nextUrl.pathname;
+  if (pathname === "/instructor") {
+    if (role === 'instructor') {
+      return NextResponse.redirect(new URL("/instructor/home", req.url));
+    }
   }
-}
+
   if (studentRoutes(req)) {
     if (!role) {
       return NextResponse.redirect(new URL("/", req.url));
@@ -53,9 +66,6 @@ if(pathname==="/instructor"){
   }
 
   return NextResponse.next();
-
-
-
 });
 
 export const config = {

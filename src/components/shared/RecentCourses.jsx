@@ -36,6 +36,13 @@ const courses = [
     price: "$39.99",
     date: "November 10, 2024",
     strength: 180,
+  },
+  {
+    name: "Python for Data Science",
+    image: "/noise.webp",
+    price: "$39.99",
+    date: "November 10, 2024",
+    strength: 180,
   }
 ]
 
@@ -49,20 +56,17 @@ function RecentCourses() {
             className="bg-white p-2 rounded-lg shadow-md hover:shadow-lg transition-shadow mb-1"
           >
             <div className="flex items-center space-x-4">
-              {/* Course Image */}
               <img
                 src={course.image}
                 alt={course.name}
                 className="w-16 h-16 object-cover rounded-full "
               />
               <div className="flex-1 flex justify-between items-center">
-                {/* Course Name */}
                 <div>
                 <h3 className="text-lg font-semibold">{course.name}</h3>
                 <p className="text-gray-500 text-sm">{course.date}</p>
                 </div>
                
-                {/* Price */}
                 <p className="mt-2 text-md font-semibold">{course.price}</p>
               </div>
             </div>

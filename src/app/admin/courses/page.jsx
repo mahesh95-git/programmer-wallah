@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -10,8 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Trash2, Star } from "lucide-react";
+import { Search, Trash2, Star, Users, Download } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,52 +22,99 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import useFetch from "@/hooks/useFetch";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import CoursePDF from "@/components/shared/coursePDF";
 
-// Sample data - replace with actual data fetching
-const instructors = [
-  {
-    id: 1,
-    name: "Java",
-    instructor: "Mahesh Rathod",
-    avatar:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=150&auto=format&fit=crop",
-    price: 5,
-    rating: 4.8,
-    students: 1250,
-  },
-  // Repeat similar items or fetch dynamically
-];
+function CourseList() {
+  const [courseList, setCourseList] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredCourses, setFilteredCourses] = useState([]);
+  const { fetchData, data, loading, error } = useFetch();
 
-function InstructorList() {
-  const [instructorList, setInstructorList] = React.useState(instructors);
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const itemsPerPage = 2; // Adjust the number of items per page
+  useEffect(() => {
+    (async () => {
+      try {
+        await fetchData({
+          url: "/api/admin/courses",
+          method: "GET",
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    })();
+  }, []);
 
-  const totalPages = Math.ceil(instructorList.length / itemsPerPage);
+  useEffect(() => {
+    if (data?.courses) {
+      setCourseList(data.courses);
+      setFilteredCourses(data.courses);
+    }
+  }, [data]);
 
-  const handleDelete = (instructorId) => {
-    setInstructorList(instructorList.filter((instructor) => instructor.id !== instructorId));
+  useEffect(() => {
+    const filtered = courseList.filter((course) => {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        course.title?.toLowerCase().includes(searchLower) ||
+        course.instructor.name?.toLowerCase().includes(searchLower)
+      );
+    });
+    setFilteredCourses(filtered);
+  }, [searchTerm, courseList]);
+
+  const handleDelete = async (courseId) => {
+    setCourseList(courseList.filter((course) => course._id !== courseId));
   };
 
-  const handlePrev = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  const formatDate = (date) => {
+    if (!date) return "N/A";
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
-  const handleNext = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+    }).format(price);
   };
-
-  // Calculate instructors to display based on current page
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentInstructors = instructorList.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <div className="p-6">
+    <div className="p-3">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Courses List</h1>
+        <h1 className="text-2xl font-bold">Course List</h1>
         <div className="flex gap-4">
-          <Button variant="outline">Export</Button>
-          <Button>Add Instructor</Button>
+          <PDFDownloadLink
+            document={<CoursePDF courses={filteredCourses} />}
+            fileName={`course-list-${
+              new Date().toISOString().split("T")[0]
+            }.pdf`}
+          >
+            {({ loading }) => (
+              <Button variant="outline" disabled={loading}>
+                <Download className="h-4 w-4 mr-2" />
+                {loading ? "Preparing PDF..." : "Export PDF"}
+              </Button>
+            )}
+          </PDFDownloadLink>
+        </div>
+      </div>
+
+      <div className="relative mb-6">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input
+            type="text"
+            placeholder="Search by course title or instructor name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 w-full max-w-sm"
+          />
         </div>
       </div>
 
@@ -76,101 +122,117 @@ function InstructorList() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Courses</TableHead>
-              <TableHead className="text-center">Instructor</TableHead>
-              <TableHead className="text-center">Price</TableHead>
+              <TableHead>Course</TableHead>
+              <TableHead>Instructor</TableHead>
               <TableHead className="text-center">Rating</TableHead>
-              <TableHead className="text-center">Total Students</TableHead>
-              <TableHead className="text-center">Created</TableHead>
+              <TableHead className="text-center">Students</TableHead>
+              <TableHead className="text-right">Price</TableHead>
+              <TableHead className="text-center">Created At</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {currentInstructors.map((instructor) => (
-              <TableRow key={instructor.id}>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarImage src={instructor.avatar} alt={instructor.name} />
-                      <AvatarFallback>{instructor.name[0]}</AvatarFallback>
-                    </Avatar>
-                    <span className="font-medium">{instructor.name}</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-3 justify-center">
-                    <Avatar>
-                      <AvatarImage src={instructor.avatar} alt={instructor.name} />
-                      <AvatarFallback>
-                        {instructor.instructor
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="font-medium">{instructor.instructor}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-center">{instructor.price}</TableCell>
-                <TableCell className="text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span>{instructor.rating}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-center">{instructor.students.toLocaleString()}</TableCell>
-                <TableCell className="text-center">{Date.now()}</TableCell>
-                <TableCell className="text-right">
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Instructor</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete this instructor? This action cannot be undone and will affect all associated courses and students.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          className="bg-red-500 hover:bg-red-600"
-                          onClick={() => handleDelete(instructor.id)}
-                        >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-10">
+                  Loading...
                 </TableCell>
               </TableRow>
-            ))}
+            ) : error ? (
+              <TableRow>
+                <TableCell
+                  colSpan={7}
+                  className="text-center py-10 text-red-500"
+                >
+                  Error loading courses
+                </TableCell>
+              </TableRow>
+            ) : filteredCourses.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-10">
+                  {searchTerm
+                    ? "No matching courses found"
+                    : "No courses found"}
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredCourses.map((course) => (
+                <TableRow key={course._id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={course.thumbnail}
+                        alt={course.title}
+                        className="h-10 w-16 object-cover rounded"
+                      />
+                      <span className="font-medium">{course.title}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm text-gray-600">
+                      {course.instructor.name}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <span>{course.rating.toFixed(1)}</span>
+                      <span className="text-gray-400 text-sm">
+                        ({course.totalReviews})
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <Users className="h-4 w-4 text-gray-400" />
+                      <span>{course.enrolledStudents}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {course.isFree ? "Free" : formatPrice(course.price)}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {formatDate(course.createdAt)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Course</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete this course? This
+                            action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-red-500 hover:bg-red-600"
+                            onClick={() => handleDelete(course._id)}
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
-      </div>
-
-      <div className="flex justify-center items-center mt-4">
-        <div className="space-x-4">
-        <Button onClick={handlePrev} disabled={currentPage === 1}>
-          Prev
-        </Button>
-        <span>
-          Page {currentPage} of {totalPages}
-        </span>
-        <Button onClick={handleNext} disabled={currentPage === totalPages}>
-          Next
-        </Button>
-        </div>
       </div>
     </div>
   );
 }
 
-export default InstructorList;
+export default CourseList;

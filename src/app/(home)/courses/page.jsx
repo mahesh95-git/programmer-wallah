@@ -1,159 +1,242 @@
-"use client"
-import React, { useState } from 'react';
-import { Checkbox } from '@radix-ui/react-checkbox';
-import { Label } from "@/components/ui/label"
+"use client";
+import React, { useState, useEffect } from "react";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"
+} from "@/components/ui/accordion";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
+} from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import CourseCard from "@/components/shared/Course";
+import { ListFilter, X } from "lucide-react";
+import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
+import useFetch from "@/hooks/useFetch";
+import Pagination from "@/components/shared/pagination";
 
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import CourseCard from '@/components/shared/Course';
-import { ListFilter } from 'lucide-react';
-import Link from 'next/link';
-function Page() {
-  const courseCategories = [
-    "Mobile Development",
-    "Database Management",
-    "Front-End Development",
-    "Back-End Development",
-    "Full Stack Development",
-    "Cloud Computing",
-    "Artificial Intelligence",
-    "Data Science",
-    "Machine Learning",
-    "Cybersecurity",
-    "Artificial Intelligence",
-    "Data Science",
-    "Machine Learning",
-    "Cybersecurity",
-    "Artificial Intelligence",
-    "Data Science",
-    "Machine Learning",
-    "Cybersecurity",
-  ];
+const ITEMS_PER_PAGE = 30;
 
-  const [activeCategory, setActiveCategory] = useState(null);
+const categoryTitles = [
+  "Web Development",
+  "Backend Development",
+  "Database Management",
+  "Programming Languages",
+  "Computer Architecture",
+  "Cybersecurity",
+  "Artificial Intelligence",
+  "DevOps",
+  "Mobile Development",
+  "Computer Networks",
+  "Cloud Computing"
+];
+
+const initialFilters = {
+  category: "",
+  rating: "",
+  price: "",
+  level: "",
+  languages: [],
+  sort: "popular",
+  page: 1
+};
+
+function Page({ searchParams }) {
+  const { fetchData, data, loading, error } = useFetch();
+  const { category ,page} =React.use(searchParams);
+  const router = useRouter();
+  
+  const [filters, setFilters] = useState({
+    ...initialFilters,
+    category: category?.split("-").join(" ") || "",
+    page: Number(page) || 1
+  });
+
+  // Function to build query string from filters
+  const buildQueryString = () => {
+    const queryParams = new URLSearchParams();
+
+    if (filters.category) queryParams.append("category", filters.category);
+    if (filters.rating) queryParams.append("rating", filters.rating);
+    if (filters.price) queryParams.append("price", filters.price);
+    if (filters.level) queryParams.append("level", filters.level);
+    if (filters.languages.length > 0) {
+      queryParams.append("language", filters.languages.join(","));
+    }
+    if (filters.sort) queryParams.append("sort", filters.sort);
+    if (filters.page > 1) queryParams.append("page", filters.page.toString());
+    queryParams.append("limit", ITEMS_PER_PAGE.toString());
+
+    return queryParams.toString();
+  };
+
+  // Fetch courses whenever filters change
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const queryString = buildQueryString();
+        await fetchData({
+          url: `/api/courses${queryString ? `?${queryString}` : ""}`,
+          method: "GET",
+        });
+      
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchCourses();
+  }, [filters]);
+
+  // Handle filter changes
+  const handleFilterChange = (type, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [type]: value,
+      page: 1 // Reset to first page when filters change
+    }));
+  };
+
+  const handleRemoveAllFilters = () => {
+    setFilters(initialFilters);
+    router.push(window.location.pathname, { scroll: false });
+  };
+
+  // Handle language checkbox changes
+  const handleLanguageChange = (language, checked) => {
+    setFilters(prev => ({
+      ...prev,
+      languages: checked
+        ? [...prev.languages, language]
+        : prev.languages.filter((lang) => lang !== language),
+      page: 1 // Reset to first page when languages change
+    }));
+  };
+
+  const handlePageChange = (page) => {
+    setFilters(prev => ({
+      ...prev,
+      page
+    }));
+  };
+
+  const activeFiltersCount = Object.entries(filters).reduce((count, [key, value]) => {
+    if (key === 'page') return count; // Don't count page in active filters
+    if (Array.isArray(value)) {
+      return count + value.length;
+    }
+    return count + (value ? 1 : 0);
+  }, 0);
+
+  const totalPages = Math.ceil((data?.totalCourses || 0) / ITEMS_PER_PAGE);
 
   return (
-    <div className="w-full min-h-screen ">
-      {/* Course Categories */}
-      <div className="w-full flex gap-4 items-end h-36 scroll-m-100 border-b-2 pb-1 border-gray-200 snap-x overflow-x-auto " style={{
-        scrollbarWidth: 'none',
-        scrollbarColor: 'transparent transparent',
-        scrollbarTrack: 'none',
-        scrollbarThumb: 'none',
-      }} >
-        {courseCategories.map((category, index) => (
-          <div
-            key={index}
-            className={` text-nowrap rounded-lg cursor-pointer snap-center transition-opacity duration-300 text-lg py-3 ${activeCategory === index
-              ? 'opacity-100 text-black'
-              : 'opacity-50'
-              }`}
-            onClick={() => setActiveCategory(index)}
+    <div className="w-full min-h-screen">
+      <div className="flex gap-3 items-center mt-20">
+        <div className="text-lg flex items-center gap-1 rounded-md my-5 p-3 border-2">
+          <ListFilter />
+          Filter ({activeFiltersCount})
+        </div>
+        {activeFiltersCount > 0 && (
+          <Button
+            variant="outline"
+            className="h-14 flex items-center gap-2"
+            onClick={handleRemoveAllFilters}
           >
-            {category}
-          </div>
-        ))}
-      </div>
-
-      <div className='flex  gap-3 items-center'>
-        <div className='text-lg flex items-center gap-1  rounded-md my-5 p-3 border-2' ><ListFilter />Filter (10)</div>
-        <Select>
+            <X className="h-4 w-4" />
+            Remove All Filters
+          </Button>
+        )}
+        <Select 
+          value={filters.sort}
+          onValueChange={(value) => handleFilterChange("sort", value)}
+        >
           <SelectTrigger className="w-[180px] h-14 text-lg">
-            <SelectValue placeholder="Sort by" defaultValue={"Most Popular"} />
+            <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="light">Most Popular</SelectItem>
-            <SelectItem value="dark">Most Rated</SelectItem>
-            <SelectItem value="system">Most Recent</SelectItem>
+            <SelectItem value="popular">Most Popular</SelectItem>
+            <SelectItem value="rated">Most Rated</SelectItem>
+            <SelectItem value="recent">Most Recent</SelectItem>
           </SelectContent>
         </Select>
-        <h1 className='text-lg'>
-          All {courseCategories[activeCategory||0]} Courses
+        <h1 className="text-lg">
+          {loading ? "Loading..." : `${data?.totalCourses || 0} Courses Found`}
         </h1>
       </div>
-      <div>
 
-      </div>
-      {/* Content Section */}
-      <div className=" w-full flex gap-3">
+      <div className="w-full flex gap-3">
         <div className="min-w-56">
-          {/* Ratings Section */}
           <Accordion type="single" collapsible>
             <AccordionItem value="item-1">
-              <AccordionTrigger className="text-lg font-semibold my-2">Ratings</AccordionTrigger>
+              <AccordionTrigger className="text-lg font-semibold my-2">
+                Ratings
+              </AccordionTrigger>
               <AccordionContent>
-                <RadioGroup defaultValue="option-one">
+                <RadioGroup
+                  value={filters.rating}
+                  onValueChange={(value) => handleFilterChange("rating", value)}
+                >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="option-one" id="option-one" />
-                    <Label htmlFor="option-one">4 Stars & Up</Label>
+                    <RadioGroupItem value="4" id="rating-4" />
+                    <Label htmlFor="rating-4">4 Stars & Up</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="option-two" id="option-two" />
-                    <Label htmlFor="option-two">3 Stars & Up</Label>
+                    <RadioGroupItem value="3" id="rating-3" />
+                    <Label htmlFor="rating-3">3 Stars & Up</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="option-three" id="option-three" />
-                    <Label htmlFor="option-three">2 Stars & Up</Label>
+                    <RadioGroupItem value="2" id="rating-2" />
+                    <Label htmlFor="rating-2">2 Stars & Up</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="option-four" id="option-four" />
-                    <Label htmlFor="option-four">1 Star & Up</Label>
+                    <RadioGroupItem value="1" id="rating-1" />
+                    <Label htmlFor="rating-1">1 Star & Up</Label>
                   </div>
                 </RadioGroup>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
 
-          {/* Subcategory Section */}
           <Accordion type="single" collapsible>
             <AccordionItem value="item-2">
-              <AccordionTrigger className="text-lg font-semibold my-2">Subcategory</AccordionTrigger>
+              <AccordionTrigger className="text-lg font-semibold my-2">
+                Category
+              </AccordionTrigger>
               <AccordionContent>
-                <RadioGroup defaultValue="option-one">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="frontend" id="frontend" />
-                    <Label htmlFor="frontend">Frontend Development</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="backend" id="backend" />
-                    <Label htmlFor="backend">Backend Development</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="fullstack" id="fullstack" />
-                    <Label htmlFor="fullstack">Fullstack Development</Label>
-                  </div>
+                <RadioGroup
+                  value={filters.category}
+                  onValueChange={(value) => handleFilterChange("category", value)}
+                >
+                  {categoryTitles.map((title) => (
+                    <div key={title} className="flex items-center space-x-2">
+                      <RadioGroupItem value={title} id={title} />
+                      <Label htmlFor={title}>{title}</Label>
+                    </div>
+                  ))}
                 </RadioGroup>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
 
-          {/* Price Section */}
           <Accordion type="single" collapsible>
             <AccordionItem value="item-3">
-              <AccordionTrigger className="text-lg font-semibold my-2">Price</AccordionTrigger>
+              <AccordionTrigger className="text-lg font-semibold my-2">
+                Price
+              </AccordionTrigger>
               <AccordionContent>
-                <RadioGroup defaultValue="free">
+                <RadioGroup
+                  value={filters.price}
+                  onValueChange={(value) => handleFilterChange("price", value)}
+                >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="free" id="free" />
                     <Label htmlFor="free">Free</Label>
@@ -167,12 +250,16 @@ function Page() {
             </AccordionItem>
           </Accordion>
 
-          {/* Level Section */}
           <Accordion type="single" collapsible>
             <AccordionItem value="item-4">
-              <AccordionTrigger className="text-lg font-semibold my-2">Level</AccordionTrigger>
+              <AccordionTrigger className="text-lg font-semibold my-2">
+                Level
+              </AccordionTrigger>
               <AccordionContent>
-                <RadioGroup defaultValue="beginner">
+                <RadioGroup
+                  value={filters.level}
+                  onValueChange={(value) => handleFilterChange("level", value)}
+                >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="beginner" id="beginner" />
                     <Label htmlFor="beginner">Beginner</Label>
@@ -190,58 +277,60 @@ function Page() {
             </AccordionItem>
           </Accordion>
 
-          {/* Languages Section */}
           <Accordion type="single" collapsible>
             <AccordionItem value="item-5">
-              <AccordionTrigger className="text-lg font-semibold my-2">Languages</AccordionTrigger>
-              <AccordionContent >
-                <div className="flex items-center space-x-2 mb-2">
-
-                  <input type="checkbox" id="english" />
-                  <Label htmlFor="english">English</Label>
-                </div>
-                <div className="flex items-center space-x-2 mb-2">
-
-                  <input type="checkbox" name="" id="hinid" />
-                  <Label htmlFor="hindi">Hindi</Label>
-                </div>
-                <div className="flex items-center space-x-2 mb-2">
-                  <input type="checkbox" name="" id="spanish" />
-                  <Label htmlFor="spanish">Spanish</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <input type="checkbox" name="" id="french" />
-                  <Label htmlFor="french">French</Label>
-                </div>
+              <AccordionTrigger className="text-lg font-semibold my-2">
+                Languages
+              </AccordionTrigger>
+              <AccordionContent>
+                {["english", "hindi", "marathi",].map((language) => (
+                  <div
+                    key={language}
+                    className="flex items-center space-x-2 mb-2"
+                  >
+                    <input
+                      type="checkbox"
+                      id={language}
+                      checked={filters.languages.includes(language)}
+                      onChange={(e) =>
+                        handleLanguageChange(language, e.target.checked)
+                      }
+                    />
+                    <Label htmlFor={language}>
+                      {language.charAt(0).toUpperCase() + language.slice(1)}
+                    </Label>
+                  </div>
+                ))}
               </AccordionContent>
             </AccordionItem>
           </Accordion>
         </div>
-        <div className='w-full '>
-        <Link href={"/courses/1"}>
-        <CourseCard />
-        </Link>
-         
-          
-          <div className='my-4'>
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious href="#" />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">1</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext href="#" />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
 
-          </div>
+        <div className="w-full">
+          {loading ? (
+            <div>Loading courses...</div>
+          ) : error ? (
+            <div>Error: {error}</div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <div className="grid gap-4">
+                {data?.courses?.map((course) => (
+                  <Link key={course._id} href={`/courses/${course._id}`}>
+                    <CourseCard course={course} />
+                  </Link>
+                ))}
+              </div>
+              {totalPages > 1 && (
+                <div className="mt-8">
+                  <Pagination
+                    currentPage={filters.page}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
